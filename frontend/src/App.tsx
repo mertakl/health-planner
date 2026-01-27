@@ -1,28 +1,86 @@
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {GoalForm} from './components/GoalForm';
 import {PlanDisplay} from './components/PlanDisplay';
-import type {HealthGoal, GoalPlan} from './types';
-import {generatePlan} from './services/api';
+import type {GoalPlan, HealthGoal} from './types';
+import {deletePlan, generatePlanStreaming, listPlans} from './services/api';
+import {SavedPlans} from "./components/SavedPlans.tsx";
 
 function App() {
     const [loading, setLoading] = useState(false);
     const [plan, setPlan] = useState<GoalPlan | null>(null);
+    const [savedPlans, setSavedPlans] = useState<GoalPlan[]>([]);
     const [error, setError] = useState<string>('');
+
+
+    useEffect(() => {
+        listPlans().then(setSavedPlans).catch(console.error);
+    }, []);
 
     const handleGoalSubmit = async (goal: HealthGoal) => {
         setLoading(true);
         setError('');
+        setPlan({
+            id: '',
+            goal: goal.goal,
+            overview: '',
+            weeks: [],
+            createdAt: new Date().toISOString(),
+        });
 
         try {
-            const generatedPlan = await generatePlan(goal);
-            setPlan(generatedPlan);
+            await generatePlanStreaming(goal, (event) => {
+                setPlan(prev => {
+                    if (!prev) return prev;
+
+                    switch (event.type) {
+                        case 'overview':
+                            return {
+                                ...prev,
+                                overview: event.value,
+                            };
+
+                        case 'week_start':
+                            return {
+                                ...prev,
+                                weeks: [
+                                    ...prev.weeks,
+                                    {
+                                        week: event.week,
+                                        focus: event.focus,
+                                        tasks: [],
+                                    },
+                                ],
+                            };
+
+                        case 'task':
+                            return {
+                                ...prev,
+                                weeks: prev.weeks.map(w =>
+                                    w.week === event.week
+                                        ? {...w, tasks: [...w.tasks, event.task]}
+                                        : w
+                                ),
+                            };
+
+                        case 'done':
+                            return {
+                                ...prev,
+                                id: event.plan_id,
+                            };
+
+                        default:
+                            return prev;
+                    }
+                });
+            });
         } catch (err) {
-            setError('Failed to generate plan. Please try again.');
             console.error(err);
+            setError('Failed to generate plan. Please try again.');
         } finally {
             setLoading(false);
         }
     };
+
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -46,6 +104,18 @@ function App() {
                     <GoalForm onSubmit={handleGoalSubmit} loading={loading}/>
                     {plan && <PlanDisplay plan={plan}/>}
                 </div>
+                {savedPlans.length > 0 && (
+                    <div className="grid md:grid-cols-1 gap-2 pt-5">
+                        <SavedPlans
+                            plans={savedPlans}
+                            onSelect={setPlan}
+                            onDelete={async (id) => {
+                                await deletePlan(id);
+                                setSavedPlans(plans => plans.filter(p => p.id !== id));
+                            }}
+                        />
+                    </div>
+                )}
             </div>
         </div>
     );

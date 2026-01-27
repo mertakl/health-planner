@@ -1,11 +1,7 @@
-from pydantic import BaseModel
-from typing import List, Optional
+from typing import Optional
 
-class HealthGoalInput(BaseModel):
-    goal: str
-    current_level: str
-    timeline: str
-    constraints: Optional[str] = ""
+from pydantic import BaseModel
+
 
 class WeeklyTask(BaseModel):
     id: str
@@ -14,14 +10,24 @@ class WeeklyTask(BaseModel):
     duration: str
     completed: bool = False
 
+
 class WeeklyPlan(BaseModel):
     week: int
     focus: str
-    tasks: List[WeeklyTask]
+    tasks: list[WeeklyTask]
+
 
 class GoalPlan(BaseModel):
     id: str
     goal: str
     overview: str
-    weeks: List[WeeklyPlan]
+    weeks: list[WeeklyPlan]
     created_at: str
+
+
+class HealthGoalInput(BaseModel):
+    goal: str
+    current_level: str
+    timeline: str
+    constraints: str = ""
+    user_id: Optional[str] = None

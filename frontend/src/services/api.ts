@@ -11,15 +11,66 @@ const api = axios.create({
     },
 });
 
-export const generatePlan = async (goal: HealthGoal): Promise<GoalPlan> => {
-    const response = await api.post('/api/generate-plan', {
-        goal: goal.goal,
-        current_level: goal.currentLevel,
-        timeline: goal.timeline,
-        constraints: goal.constraints,
+export const generatePlanStreaming = async (
+    goal: HealthGoal,
+    onEvent: (event: any) => void
+): Promise<void> => {
+    const response = await fetch(`${API_BASE_URL}/api/generate-plan-stream`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            goal: goal.goal,
+            current_level: goal.currentLevel,
+            timeline: goal.timeline,
+            constraints: goal.constraints,
+        }),
     });
+
+    if (!response.body) {
+        throw new Error('No response body');
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+        const {value, done} = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, {stream: true});
+
+        const events = buffer.split('\n\n');
+        buffer = events.pop()!;
+
+        for (const evt of events) {
+            if (!evt.startsWith('data:')) continue;
+
+            const json = evt.replace(/^data:\s*/, '');
+            const parsed = JSON.parse(json);
+
+            onEvent(parsed);
+        }
+    }
+};
+
+
+export const listPlans = async (userId?: string) => {
+    const response = await api.get('/api/plans', {
+        params: {user_id: userId},
+    });
+    return response.data.plans;
+};
+
+export const getPlanById = async (planId: string): Promise<GoalPlan> => {
+    const response = await api.get(`/api/plans/${planId}`);
     return response.data;
 };
+
+export const deletePlan = async (planId: string) => {
+    await api.delete(`/api/plans/${planId}`);
+};
+
 
 export const healthCheck = async (): Promise<boolean> => {
     try {
