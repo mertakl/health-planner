@@ -5,7 +5,7 @@ from sqlmodel import Field, SQLModel
 
 
 class SavedPlan(SQLModel, table=True):
-    __tablename__ = "health_plans"  # optional, but fine if you want a custom name
+    __tablename__ = "health_plans"
 
     id: str = Field(primary_key=True)
     goal: str
@@ -15,5 +15,3 @@ class SavedPlan(SQLModel, table=True):
     overview: Optional[str] = None
     plan_data: str
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-
-

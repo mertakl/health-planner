@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type {HealthGoal, GoalPlan} from '../types';
+import type {GoalPlan, HealthGoal} from '../types';
 
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -15,7 +15,7 @@ export const generatePlanStreaming = async (
     goal: HealthGoal,
     onEvent: (event: any) => void
 ): Promise<void> => {
-    const response = await fetch(`${API_BASE_URL}/api/generate-plan-stream`, {
+    const response = await fetch(`${API_BASE_URL}/api/plans/generate`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
@@ -55,11 +55,8 @@ export const generatePlanStreaming = async (
 };
 
 
-export const listPlans = async (userId?: string) => {
-    const response = await api.get('/api/plans', {
-        params: {user_id: userId},
-    });
-    return response.data.plans;
+export const listPlans = async () => {
+    return await api.get('/api/plans');
 };
 
 export const getPlanById = async (planId: string): Promise<GoalPlan> => {
@@ -69,14 +66,4 @@ export const getPlanById = async (planId: string): Promise<GoalPlan> => {
 
 export const deletePlan = async (planId: string) => {
     await api.delete(`/api/plans/${planId}`);
-};
-
-
-export const healthCheck = async (): Promise<boolean> => {
-    try {
-        await api.get('/health');
-        return true;
-    } catch {
-        return false;
-    }
 };
