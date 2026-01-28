@@ -69,6 +69,19 @@ async def update_task_status(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.get("/{plan_id}", response_model=PlanResponse)
+def get_plan(
+        plan_id: str,
+        service: PlanService = Depends(get_plan_service)
+):
+    """Retrieve a saved plan by ID."""
+    plan = service.get_plan(plan_id)
+    if not plan:
+        raise HTTPException(status_code=404, detail="Plan not found")
+
+    return PlanResponse(plan=plan)
+
+
 @router.get("/", response_model=list[GoalPlan])
 def list_plans(service: PlanService = Depends(get_plan_service)):
     """List saved plans."""

@@ -12,6 +12,14 @@ def client():
 class TestPlanEndpoints:
     """Test plan endpoints."""
 
+    def test_get_nonexistent_plan(self, client: TestClient):
+        response = client.get("/api/plans/nonexistent-id")
+        assert response.status_code == 404
+
+    def test_delete_nonexistent_plan(self, client: TestClient):
+        response = client.delete("/api/plans/nonexistent-id")
+        assert response.status_code == 404
+
     def test_list_plans(self, client: TestClient):
         response = client.get("/api/plans")
         assert response.status_code == 200
