@@ -42,7 +42,7 @@ function App() {
             goal: goal.goal,
             overview: '',
             weeks: [],
-            createdAt: new Date().toISOString(),
+            created_at: new Date().toISOString(),
         });
 
         try {

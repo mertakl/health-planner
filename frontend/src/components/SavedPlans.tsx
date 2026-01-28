@@ -41,7 +41,7 @@ export const SavedPlans: React.FC<SavedPlansProps> = ({
                         >
                             <p className="font-medium">{plan.goal}</p>
                             <p className="text-xs text-gray-500">
-                                {new Date(plan.createdAt).toLocaleDateString()}
+                                {new Date(plan.created_at).toLocaleDateString()}
                             </p>
                             {plan.weeks.length > 0 && (
                                 <p className="text-xs text-gray-400 mt-1">

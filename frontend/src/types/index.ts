@@ -24,5 +24,5 @@ export interface GoalPlan {
     goal: string;
     overview: string;
     weeks: WeeklyPlan[];
-    createdAt: string;
+    created_at: string;
 }
