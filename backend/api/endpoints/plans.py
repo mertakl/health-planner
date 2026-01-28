@@ -5,7 +5,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from backend.db.session import get_db
-from backend.schemas.plan import PlanCreate, PlanResponse
+from backend.schemas.plan import PlanCreate, PlanResponse, TaskStatusUpdate, GoalPlan
 from backend.services.plan_service import PlanService
 
 logger = logging.getLogger(__name__)
@@ -38,20 +38,38 @@ async def generate_plan(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/{plan_id}", response_model=PlanResponse)
-def get_plan(
+@router.patch("/{plan_id}/weeks/{week_number}/tasks/{task_id}")
+async def update_task_status(
         plan_id: str,
+        week_number: int,
+        task_id: str,
+        task_update: TaskStatusUpdate,
         service: PlanService = Depends(get_plan_service)
 ):
-    """Retrieve a saved plan by ID."""
-    plan = service.get_plan(plan_id)
-    if not plan:
-        raise HTTPException(status_code=404, detail="Plan not found")
+    """Update the completion status of a specific task."""
+    try:
+        success = await service.update_task_status(
+            plan_id=plan_id,
+            week_number=week_number,
+            task_id=task_id,
+            completed=task_update.completed
+        )
 
-    return PlanResponse(plan=plan)
+        if not success:
+            raise HTTPException(
+                status_code=404,
+                detail="Plan or task not found"
+            )
+
+        return {"success": True, "message": "Task updated successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception("Error updating task status")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/", response_model=list[PlanResponse])
+@router.get("/", response_model=list[GoalPlan])
 def list_plans(service: PlanService = Depends(get_plan_service)):
     """List saved plans."""
     return service.list_plans()

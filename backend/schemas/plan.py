@@ -71,6 +71,11 @@ class PlanSummary(BaseModel):
         from_attributes = True
 
 
+class TaskStatusUpdate(BaseModel):
+    """Schema for updating task completion status."""
+    completed: bool
+
+
 class PlanResponse(BaseModel):
     """Response schema for plan retrieval."""
 

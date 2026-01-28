@@ -1,3 +1,4 @@
+import json
 import logging
 from datetime import datetime
 from typing import Optional
@@ -46,6 +47,30 @@ class PlanRepository:
             logger.error(f"Failed to save plan {plan.id}: {str(e)}")
             return False
 
+    def update_task_status(self, plan_id: str, week_number: int,
+                           task_id: str, completed: bool) -> bool:
+        try:
+            saved_plan = self.db.query(SavedPlan).filter(
+                SavedPlan.id == plan_id
+            ).with_for_update().first()
+
+            plan = GoalPlan.model_validate_json(saved_plan.plan_data)
+
+            for week in plan.weeks:
+                if week.week == week_number:
+                    for task in week.tasks:
+                        if task.id == task_id:
+                            task.completed = completed
+                            saved_plan.plan_data = plan.model_dump_json()
+                            self.db.commit()
+                            return True
+
+            return False
+        except Exception as e:
+            self.db.rollback()
+            logger.error(f"Failed to update task: {str(e)}")
+            return False
+
     def get_by_id(self, plan_id: str) -> Optional[GoalPlan]:
         """Retrieve a plan by ID."""
         try:
@@ -60,29 +85,23 @@ class PlanRepository:
             logger.error(f"Error retrieving plan {plan_id}: {str(e)}")
             return None
 
-    def list(
-            self
-    ) -> list[dict]:
-        """List saved plans."""
+    def list(self) -> list[GoalPlan]:
+        """List all saved plans."""
         try:
             query = self.db.query(SavedPlan)
 
-            plans = query.order_by(
-                SavedPlan.created_at.desc()
-            ).all()
+            saved_plans = query.order_by(SavedPlan.created_at.desc()).all()
 
-            return [
-                {
-                    "id": plan.id,
-                    "goal": plan.goal,
-                    "overview": plan.overview,
-                    "created_at": plan.created_at.isoformat(),
-                    "timeline": plan.timeline
-                }
-                for plan in plans
-            ]
+            # Convert to GoalPlan objects
+            plans = []
+            for saved_plan in saved_plans:
+                plan_data = json.loads(saved_plan.plan_data)
+                plans.append(GoalPlan(**plan_data))
+
+            return plans
+
         except Exception as e:
-            logger.error(f"Error listing plans: {str(e)}")
+            logger.error(f"Failed to list plans: {str(e)}")
             return []
 
     def delete(self, plan_id: str) -> bool:

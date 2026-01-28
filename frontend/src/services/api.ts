@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type {GoalPlan, HealthGoal} from '../types';
+import type {HealthGoal} from '../types';
 
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -56,13 +56,24 @@ export const generatePlanStreaming = async (
 
 
 export const listPlans = async () => {
-    return await api.get('/api/plans');
-};
-
-export const getPlanById = async (planId: string): Promise<GoalPlan> => {
-    const response = await api.get(`/api/plans/${planId}`);
+    const response = await api.get('/api/plans');
     return response.data;
 };
+
+
+export const updateTaskStatus = async (
+    planId: string,
+    weekNumber: number,
+    taskId: string,
+    completed: boolean
+): Promise<void> => {
+    const response = await api.patch(
+        `api/plans/${planId}/weeks/${weekNumber}/tasks/${taskId}`, {completed});
+    if (!response.status || response.status < 200 || response.status >= 300) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+}
+
 
 export const deletePlan = async (planId: string) => {
     await api.delete(`/api/plans/${planId}`);

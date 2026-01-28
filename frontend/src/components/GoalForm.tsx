@@ -7,9 +7,10 @@ import type {HealthGoal} from "../types";
 interface GoalFormProps {
     onSubmit: (goal: HealthGoal) => void;
     loading: boolean;
+    onNewPlan?: () => void;
 }
 
-export const GoalForm: React.FC<GoalFormProps> = ({onSubmit, loading}) => {
+export const GoalForm: React.FC<GoalFormProps> = ({onSubmit, loading, onNewPlan}) => {
     const [formData, setFormData] = useState<HealthGoal>({
         goal: '',
         currentLevel: '',
@@ -36,7 +37,7 @@ export const GoalForm: React.FC<GoalFormProps> = ({onSubmit, loading}) => {
                         <textarea
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                             rows={3}
-                            placeholder="e.g., I want to lose 20 pounds and build muscle"
+                            placeholder="e.g., I want to lose 1 kg and build muscle"
                             value={formData.goal}
                             onChange={(e) => setFormData({...formData, goal: e.target.value})}
                             required
@@ -87,6 +88,16 @@ export const GoalForm: React.FC<GoalFormProps> = ({onSubmit, loading}) => {
                     <Button type="submit" disabled={loading} className="w-full">
                         {loading ? 'Generating Plan...' : 'Generate My Plan'}
                     </Button>
+                    {onNewPlan && (
+                        <Button
+                            type="button"
+                            onClick={onNewPlan}
+                            variant="outline"
+                            className="flex-1"
+                        >
+                            New Plan
+                        </Button>
+                    )}
                 </form>
             </CardContent>
         </Card>

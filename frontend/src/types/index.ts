@@ -5,7 +5,7 @@ export interface HealthGoal {
     constraints: string;
 }
 
-export interface WeeklyTask {
+export interface Task {
     id: string;
     title: string;
     description: string;
@@ -16,7 +16,7 @@ export interface WeeklyTask {
 export interface WeeklyPlan {
     week: number;
     focus: string;
-    tasks: WeeklyTask[];
+    tasks: Task[];
 }
 
 export interface GoalPlan {

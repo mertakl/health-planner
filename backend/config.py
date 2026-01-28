@@ -19,7 +19,6 @@ class Settings(BaseSettings):
     OPENAI_TEMPERATURE: float = 0.0
 
     DATABASE_URL: str = f"sqlite:///database.db"
-    DB_ECHO: bool = False
 
     CORS_ORIGINS: list[str] = ["http://localhost:5173", "http://localhost:8000"]
 

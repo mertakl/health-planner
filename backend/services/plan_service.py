@@ -54,14 +54,28 @@ class PlanService:
             else:
                 logger.info(f"Plan {plan_to_save.id} saved successfully")
 
+    async def update_task_status(
+            self,
+            plan_id: str,
+            week_number: int,
+            task_id: str,
+            completed: bool
+    ) -> bool:
+        """Update the completion status of a task."""
+        return self.repository.update_task_status(
+            plan_id=plan_id,
+            week_number=week_number,
+            task_id=task_id,
+            completed=completed
+        )
+
     def get_plan(self, plan_id: str) -> Optional[GoalPlan]:
         """Retrieve a plan by ID."""
         return self.repository.get_by_id(plan_id)
 
-    def list_plans(self) -> List[PlanResponse]:
+    def list_plans(self) -> list[GoalPlan]:
         """List plans."""
-        plans = self.repository.list()
-        return plans
+        return self.repository.list()
 
     def delete_plan(self, plan_id: str) -> bool:
         """Delete a plan."""
