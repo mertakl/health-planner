@@ -96,9 +96,10 @@ pytest
 
 If I had more time, I would add:
 
-1. **User Authentication**
-    - Proper login/signup flow
-    - Password reset, OAuth
+1.**User Authentication**
+
+- Proper login/signup flow
+- Password reset, OAuth
 
 2.**AI Coaching**
 
@@ -117,17 +118,11 @@ If I had more time, I would add:
 - Accountability partners
 - Community challenges
 
-5.**Mobile App**
-
-- Native iOS/Android
-- Push notifications
-- Offline support
-
 ## 🛠️ Tech Stack
 
 **Frontend**:
 
-- React 18 + TypeScript
+- React 19 + TypeScript
 - Vite (build tool)
 - Tailwind CSS (styling)
 - Axios (HTTP client)
@@ -144,11 +139,12 @@ If I had more time, I would add:
 
 ## 🎥 Demo Script
 
-1.**Enter goal**: "I want to lose 15 kg"
+- **Enter goal**: "I want to lose 15 kg"
+- **Enter fitness level**: Beginner, None etc.
+- **Generate plan**: Weekly structured breakdown
+- **Show persistence**: See saved goals below
 
-3. **Enter fitness level**: Beginner, None etc.
-4. **Generate plan**: Weekly structured breakdown
-5. **Show persistence**: See saved goals below
+<video src="https://youtu.be/_gZ0zsnjuis" width="700" height="500" controls></video>
 
 ## 📄 License
 
